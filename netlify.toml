@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# SPA fallback: ให้ทุก path (เช่น /recipe/52772) ส่ง index.html แล้วให้ React Router จัดการ
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
