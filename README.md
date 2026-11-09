@@ -64,6 +64,11 @@ npm run build     # type-check + build ไปที่ dist/
 npm run preview   # ทดสอบไฟล์ที่ build แล้ว
 ```
 
+## Backend (Week13: Prisma ORM + Supabase)
+
+โฟลเดอร์ `server/` เป็น RESTful API (Express + Prisma + Supabase PostgreSQL) ดูวิธีติดตั้งที่ [server/README.md](server/README.md)
+เมื่อตั้งค่า `VITE_API_URL` หน้า My Recipes จะซิงก์สูตรของฉันกับฐานข้อมูลผ่านการระบุอีเมล
+
 ## Deploy บน Netlify
 
 มี `netlify.toml` และ `public/_redirects` ตั้งค่า SPA fallback ไว้แล้ว (เปิด `/recipe/52772` ตรง ๆ หรือรีเฟรชหน้าได้ ไม่เจอ 404)

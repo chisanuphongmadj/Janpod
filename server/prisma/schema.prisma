@@ -1,0 +1,117 @@
+// =============================================================
+// Janpod - Relational Model (Prisma ORM + Supabase PostgreSQL)
+// Week13 Class Activity / Mini Project 2 Backend
+//
+// ตาราง (Model)
+//   User            ผู้ใช้ ระบุตัวตนแบบง่ายด้วยอีเมล (ไม่ใช้รหัสผ่าน)
+//   Category        หมวดหมู่อาหาร (ข้อมูลจาก TheMealDB categories.php)
+//   Meal            สูตรอาหาร            FK -> Category
+//   Ingredient      วัตถุดิบ
+//   MealIngredient  ตารางกลาง Meal <-> Ingredient (Many-to-Many)
+//                   FK -> Meal, FK -> Ingredient, @@unique([mealId, ingredientId])
+//   Favorite        Personal Collection "สูตรของฉัน"
+//                   FK -> User, FK -> Meal,       @@unique([userId, mealId])
+// =============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Supabase: Transaction pooler (port 6543) สำหรับแอปตอนรัน
+  url       = env("DATABASE_URL")
+  // Supabase: Direct / Session connection (port 5432) สำหรับ prisma migrate
+  directUrl = env("DIRECT_URL")
+}
+
+/// ผู้ใช้ (ระบุตัวตนแบบง่ายด้วยอีเมล หรือเบอร์โทรศัพท์)
+model User {
+  id          Int        @id @default(autoincrement()) // PK
+  email       String     @unique
+  phone       String?    @unique
+  displayName String?    @map("display_name")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  favorites   Favorite[]
+
+  @@map("users")
+}
+
+/// หมวดหมู่อาหาร
+model Category {
+  id          Int      @id @default(autoincrement()) // PK (ใช้ค่า idCategory ของ TheMealDB)
+  name        String   @unique
+  thumbnail   String?
+  description String?
+
+  meals       Meal[]
+
+  @@map("categories")
+}
+
+/// สูตรอาหาร
+model Meal {
+  id           String   @id // PK (ใช้ค่า idMeal ของ TheMealDB เช่น "52814")
+  name         String
+  thumbnail    String
+  area         String?
+  instructions String?
+  tags         String?
+  youtube      String?
+  source       String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  categoryId   Int?     @map("category_id") // FK -> categories.id
+  category     Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  ingredients  MealIngredient[]
+  favorites    Favorite[]
+
+  @@index([categoryId])
+  @@map("meals")
+}
+
+/// วัตถุดิบ
+model Ingredient {
+  id    Int    @id @default(autoincrement()) // PK
+  name  String @unique
+
+  meals MealIngredient[]
+
+  @@map("ingredients")
+}
+
+/// ตารางกลาง: วัตถุดิบในแต่ละเมนู (Many-to-Many + ปริมาณ)
+model MealIngredient {
+  id           Int        @id @default(autoincrement()) // PK
+  mealId       String     @map("meal_id")       // FK -> meals.id
+  ingredientId Int        @map("ingredient_id") // FK -> ingredients.id
+  measure      String?
+  position     Int        @default(0)
+
+  meal         Meal       @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  // เมนูหนึ่งมีวัตถุดิบชนิดเดียวกันซ้ำไม่ได้
+  @@unique([mealId, ingredientId])
+  @@map("meal_ingredients")
+}
+
+/// Personal Collection: สูตรของฉัน (Favorites)
+model Favorite {
+  id        Int      @id @default(autoincrement()) // PK
+  userId    Int      @map("user_id") // FK -> users.id
+  mealId    String   @map("meal_id") // FK -> meals.id
+  note      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  meal      Meal     @relation(fields: [mealId], references: [id], onDelete: Cascade)
+
+  // ผู้ใช้ 1 คนกดบันทึกเมนูเดิมซ้ำไม่ได้
+  @@unique([userId, mealId])
+  @@map("favorites")
+}

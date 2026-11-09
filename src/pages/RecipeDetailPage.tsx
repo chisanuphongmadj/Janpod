@@ -77,7 +77,7 @@ export default function RecipeDetailPage() {
               ))}
             </div>
             <div className="flex flex-wrap gap-2 pt-1">
-              <FavoriteButton mealId={meal.idMeal} mealName={meal.strMeal} variant="full" />
+              <FavoriteButton meal={meal} variant="full" />
               {meal.strYoutube && (
                 <a href={meal.strYoutube} target="_blank" rel="noreferrer" className="btn btn-outline btn-primary rounded-full">
                   <PlayIcon /> Watch video

@@ -20,7 +20,7 @@ export default function MealCard({ meal, footer }: MealCardProps) {
             loading="lazy"
             className="size-full object-cover transition duration-300 group-hover:scale-105"
           />
-          <FavoriteButton mealId={meal.idMeal} mealName={meal.strMeal} className="absolute top-3 right-3" />
+          <FavoriteButton meal={meal} className="absolute top-3 right-3" />
         </figure>
         <div className="card-body gap-1 p-4">
           <h3 className="line-clamp-2 font-bold leading-snug">{meal.strMeal}</h3>

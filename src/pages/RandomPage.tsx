@@ -61,7 +61,7 @@ export default function RandomPage() {
               <Link to={`/recipe/${meal.idMeal}`} className="btn btn-outline btn-primary rounded-full">
                 View full recipe
               </Link>
-              <FavoriteButton mealId={meal.idMeal} mealName={meal.strMeal} variant="full" />
+              <FavoriteButton meal={meal} variant="full" />
             </div>
           </div>
         </article>

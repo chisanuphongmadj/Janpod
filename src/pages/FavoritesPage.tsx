@@ -5,6 +5,7 @@ import { useMealsByIds } from '../hooks/useMeals'
 import MealCard, { MealCardSkeleton, MealGrid } from '../components/MealCard'
 import PageHeader from '../components/PageHeader'
 import { EmptyState } from '../components/StateViews'
+import AccountSync from '../components/AccountSync'
 import { RefreshIcon, TrashIcon } from '../components/icons'
 
 export default function FavoritesPage() {
@@ -12,6 +13,7 @@ export default function FavoritesPage() {
   const favoriteIds = useFavoritesStore((state) => state.favoriteIds)
   const removeFavorite = useFavoritesStore((state) => state.removeFavorite)
   const clear = useFavoritesStore((state) => state.clear)
+  const user = useFavoritesStore((state) => state.user)
   const results = useMealsByIds(favoriteIds)
   const confirmRef = useRef<HTMLDialogElement>(null)
 
@@ -19,6 +21,7 @@ export default function FavoritesPage() {
     return (
       <>
         <PageHeader title="My Recipes" />
+        <AccountSync />
         <EmptyState
           icon="💛"
           title="No saved recipes yet"
@@ -45,13 +48,15 @@ export default function FavoritesPage() {
             </span>
           </span>
         }
-        subtitle="Saved in your browser's LocalStorage, so they're still here after a reload."
+        subtitle={user ? 'Saved in the Janpod database, so they follow you to any device.' : "Saved in your browser's LocalStorage, so they're still here after a reload."}
         actions={
           <button type="button" className="btn btn-outline btn-sm rounded-full" onClick={() => confirmRef.current?.showModal()}>
             <TrashIcon className="size-4" /> Clear all
           </button>
         }
       />
+
+      <AccountSync />
 
       <MealGrid>
         {favoriteIds.map((id, index) => {

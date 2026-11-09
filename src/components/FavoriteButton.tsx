@@ -1,20 +1,20 @@
 import { useFavoritesStore } from '../store/favoritesStore'
+import type { MealCardData } from '../types/meal'
 import { HeartIcon } from './icons'
 
 interface FavoriteButtonProps {
-  mealId: string
-  mealName: string
+  meal: MealCardData
   /** icon = ปุ่มหัวใจกลมบนการ์ด, full = ปุ่มมีข้อความ */
   variant?: 'icon' | 'full'
   className?: string
 }
 
 export default function FavoriteButton({
-  mealId,
-  mealName,
+  meal,
   variant = 'icon',
   className = '',
 }: FavoriteButtonProps) {
+  const { idMeal: mealId, strMeal: mealName } = meal
   const isFavorite = useFavoritesStore((state) => state.favoriteIds.includes(mealId))
   const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
 
@@ -24,7 +24,7 @@ export default function FavoriteButton({
     return (
       <button
         type="button"
-        onClick={() => toggleFavorite(mealId)}
+        onClick={() => toggleFavorite(meal)}
         aria-pressed={isFavorite}
         className={`btn rounded-full ${isFavorite ? 'btn-outline btn-primary' : 'btn-primary'} ${className}`}
       >
@@ -41,7 +41,7 @@ export default function FavoriteButton({
         // ปุ่มอยู่บนการ์ดที่เป็นลิงก์ จึงกันไม่ให้คลิกแล้วเปิดหน้า detail
         event.preventDefault()
         event.stopPropagation()
-        toggleFavorite(mealId)
+        toggleFavorite(meal)
       }}
       aria-pressed={isFavorite}
       aria-label={label}
