@@ -1,0 +1,69 @@
+import { useNavigate } from 'react-router'
+import { useIsFavorite, useToggleFavorite } from '../hooks/useFavorites'
+import { useSessionStore } from '../store/sessionStore'
+import type { MealCardData } from '../types/meal'
+import { HeartIcon } from './icons'
+
+interface FavoriteButtonProps {
+  meal: MealCardData
+  /** icon = ปุ่มหัวใจกลมบนการ์ด, full = ปุ่มมีข้อความ */
+  variant?: 'icon' | 'full'
+  className?: string
+}
+
+export default function FavoriteButton({
+  meal,
+  variant = 'icon',
+  className = '',
+}: FavoriteButtonProps) {
+  const { idMeal: mealId, strMeal: mealName } = meal
+  const user = useSessionStore((state) => state.user)
+  const isFavorite = useIsFavorite(mealId)
+  const toggle = useToggleFavorite()
+  const navigate = useNavigate()
+
+  function onToggle() {
+    // ยังไม่ได้ระบุตัวตน -> ไปหน้าสูตรของฉันเพื่อกรอกอีเมลก่อน
+    if (!user) {
+      navigate('/favorites')
+      return
+    }
+    toggle.mutate({ meal, saved: isFavorite })
+  }
+
+  const label = isFavorite ? `Remove ${mealName} from My Recipes` : `Save ${mealName} to My Recipes`
+
+  if (variant === 'full') {
+    return (
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-pressed={isFavorite}
+        className={`btn rounded-full ${isFavorite ? 'btn-outline btn-primary' : 'btn-primary'} ${className}`}
+      >
+        <HeartIcon filled={isFavorite} />
+        {isFavorite ? 'Saved' : 'Save recipe'}
+      </button>
+    )
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={(event) => {
+        // ปุ่มอยู่บนการ์ดที่เป็นลิงก์ จึงกันไม่ให้คลิกแล้วเปิดหน้า detail
+        event.preventDefault()
+        event.stopPropagation()
+        onToggle()
+      }}
+      aria-pressed={isFavorite}
+      aria-label={label}
+      title={label}
+      className={`btn btn-circle btn-sm border-0 bg-white/95 shadow-sm hover:scale-110 ${
+        isFavorite ? 'text-primary' : 'text-base-content/40'
+      } ${className}`}
+    >
+      <HeartIcon filled={isFavorite} className="size-4" />
+    </button>
+  )
+}
